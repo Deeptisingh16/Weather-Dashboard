@@ -12,16 +12,17 @@ const weatherResult = document.getElementById(
 
 interface WeatherData {
   name: string;
-  main: {
-    temp: number;
-    humidity: number;
-  };
-  weather: {
-    description: string;
-    icon: string;
-  }[];
+  main: Main;
+  weather: Weather[];
 }
-
+interface Main {
+  temp: number;
+  humidity: number;
+}
+interface Weather {
+  description: string;
+  icon: string;
+}
 getWeatherBtn?.addEventListener("click", () => {
   const cityName = cityInput?.value.trim();
   const cityRegex = /^[a-zA-Z\s]+$/;

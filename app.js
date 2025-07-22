@@ -42,12 +42,15 @@ var weatherResult = document.getElementById("weatherResult");
 getWeatherBtn === null || getWeatherBtn === void 0 ? void 0 : getWeatherBtn.addEventListener("click", function () {
     var cityName = cityInput === null || cityInput === void 0 ? void 0 : cityInput.value.trim();
     var cityRegex = /^[a-zA-Z\s]+$/;
+    console.log("Get Weather button Clicked");
     if (!cityName) {
         alert("Please enter a city name.");
+        console.log("Wrong city name");
         return;
     }
     if (!cityRegex.test(cityName)) {
         alert("City name should contain only letters and spaces.");
+        console.log("Wrong pattern");
         return;
     }
     fetchWeather(cityName);
@@ -63,10 +66,11 @@ var fetchWeather = function (city) { return __awaiter(_this, void 0, void 0, fun
                 _a.label = 1;
             case 1:
                 _a.trys.push([1, 4, , 5]);
-                return [4 /*yield*/, fetch("https://api.openweathermap.org/data/2.5/weather?q=".concat(encodeURIComponent(city), "&appid=").concat(apiKey, "&units=metric"))];
+                return [4 /*yield*/, fetch("https://api.openweathermap.org/data/2.5/weather?q=".concat(city, "&appid=").concat(apiKey, "&units=metric"))];
             case 2:
                 response = _a.sent();
                 if (!response.ok) {
+                    console.log("City not found");
                     throw new Error("City not found!");
                 }
                 return [4 /*yield*/, response.json()];

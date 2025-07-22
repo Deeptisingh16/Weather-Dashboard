@@ -2,50 +2,77 @@ const apiKey = "21e787f2b678a61185dc50b205222ff1";
 
 const getWeatherBtn = document.getElementById(
   "getWeatherBtn"
-) as HTMLButtonElement;
-const cityInput = document.getElementById("cityInput") as HTMLInputElement;
+) as HTMLButtonElement | null;
+const cityInput = document.getElementById(
+  "cityInput"
+) as HTMLInputElement | null;
 const weatherResult = document.getElementById(
   "weatherResult"
-) as HTMLDivElement;
+) as HTMLDivElement | null;
 
-getWeatherBtn.addEventListener("click", () => {
-  const cityName = cityInput.value;
+type WeatherData = {
+  name: string;
+  main: {
+    temp: number;
+    humidity: number;
+  };
+  weather: {
+    description: string;
+    icon: string;
+  }[];
+};
+
+getWeatherBtn?.addEventListener("click", () => {
+  const cityName = cityInput?.value.trim();
   const cityRegex = /^[a-zA-Z\s]+$/;
-  if (cityName === "") {
+
+  if (!cityName) {
     alert("Please enter a city name.");
     return;
-  } else if (!cityRegex.test(cityName)) {
+  }
+
+  if (!cityRegex.test(cityName)) {
     alert("City name should contain only letters and spaces.");
     return;
   }
+
   fetchWeather(cityName);
 });
 
 const fetchWeather = async (city: string): Promise<void> => {
+  if (!weatherResult) return;
   weatherResult.innerHTML = `<p>Loading...</p>`;
+
   try {
     const response = await fetch(
-      `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
+      `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(
+        city
+      )}&appid=${apiKey}&units=metric`
     );
+
     if (!response.ok) {
       throw new Error("City not found!");
     }
-    const data = await response.json();
+
+    const data: WeatherData = await response.json();
     displayWeather(data);
-    cityInput.value = "";
+    if (cityInput) cityInput.value = "";
   } catch (error) {
-    weatherResult.innerHTML = `<p style="color: red;">${
-      (error as Error).message
-    }</p>`;
+    const message =
+      error instanceof Error ? error.message : "An unknown error occurred.";
+    weatherResult.innerHTML = `<p style="color: red;">${message}</p>`;
   }
 };
 
-function displayWeather(data: any): void {
+function displayWeather(data: WeatherData): void {
+  if (!weatherResult) return;
+
   const { name, main, weather } = data;
   const temp = main.temp;
   const humidity = main.humidity;
-  const description = weather[0].description;
-  const icon = `https://openweathermap.org/img/wn/${weather[0].icon}@2x.png`;
+  const description = weather[0]?.description ?? "No description";
+  const icon = `https://openweathermap.org/img/wn/${weather[0]?.icon}@2x.png`;
+
   weatherResult.innerHTML = `
     <h2>${name}</h2>
     <p>${temp}°C - ${description}</p>
